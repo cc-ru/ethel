@@ -1,0 +1,2 @@
+local newWindow do
+end
