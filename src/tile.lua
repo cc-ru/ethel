@@ -1,13 +1,15 @@
 local newTile do
   local meta = {}
+  meta.__index = meta
 
   function newTile(type, renderFunc)
+    local o = {
+      render = render,
+      type = type
+    }
+    setmetatable(o, meta)
     return function()
-      local o = {
-        render = render,
-        type = type
-      }
-      return setmetatable(o, meta)
+      return o
     end
   end
 end
