@@ -1,12 +1,15 @@
 local fs = require("filesystem")
 
-local paths = {
-  "/usr/lib/ethel/?.lua",
-  fs.concat(os.getenv("_"), "../?/init.lua")
-}
 
 local module = {}
 module.cache = {}
+
+module.path = {
+  "/usr/lib/ethel/?.lua",
+  "/usr/lib/ethel/?/init.lua",
+  fs.concat(os.getenv("_"), "../?.lua"),
+  fs.concat(os.getenv("_"), "../?/init.lua")
+}
 
 function module.load(name)
   if not module.cache[name] then
@@ -29,7 +32,7 @@ function module.load(name)
     end
     local result = table.pack(xpcall(chunk, debug.traceback))
     if not result[1] then
-      error("could not load module '" .. name .. "': " .. tostring(result[2]))
+      error("could not load module '" .. name .. "': " .. tostring(result[2]) .. "\n")
     end
     module.cache[name] = result
   end

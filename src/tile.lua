@@ -1,4 +1,4 @@
-local module = require("module")
+local module = require("ethel.module")
 
 local getResource = module.load("resource").getResource
 
@@ -8,7 +8,7 @@ local newTile do
 
   function newTile(type, renderFunc)
     local o = {
-      render = render,
+      render = renderFunc,
       type = type
     }
     return setmetatable(o, meta)
@@ -20,7 +20,7 @@ local function renderFromResource(resource)
     local x, y = window:toAbsCoords(gx, gy)
     if resource.texture.type == "static" then
       resource.texture:draw(gx, gy)
-    elseif resources.texture.type == "connected" then
+    elseif resource.texture.type == "connected" then
       local tx, ty = tilemap:fromAbsCoords(x, y)
       local left = tilemap:get(tx - 1, ty)
       local right = tilemap:get(tx + 1, ty)
@@ -35,8 +35,8 @@ local function renderFromResource(resource)
   end
 end
 
-local wall = newTile("wall", renderFromResource(getResource("tile.wall")))
+local stone = newTile("stone", renderFromResource(getResource("tile.stone")))
 
 return {
-  wall = wall
+  stone = stone
 }

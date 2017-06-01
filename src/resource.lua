@@ -8,9 +8,10 @@ local paths = {
   "/usr/share/ethel"
 }
 
-for k, v in pairs(paths) do
+for i = #paths, 1, -1 do
+  local v = paths[i]
   if not fs.exists(v) or not fs.isDirectory(v) then
-    paths[k] = nil
+    table.remove(paths, i)
   end
 end
 
@@ -52,70 +53,77 @@ local loadTexture do
 
   function loadTexture(params, name, path)
     local resource = newResource("texture")
+    resource.texture = {}
     local files = {}
     for v in params.textures:gmatch("%S+") do
       table.insert(files, v)
     end
     if params["texture type"]:lower() == "static" then
-      resource.texture[1] = setmetatable(image.load(files[1]), textureMeta)
+      resource.texture[1] = setmetatable(image.load(fs.concat(path, files[1])),
+                                         textureMeta)
       resource.texture.type = "static"
       setmetatable(resource.texture, meta)
     elseif params["texture type"]:lower() == "connected" then
       for i = 1, 16, 1 do
-        resource.texture[i] = setmetatable(image.load(files[i]), textureMeta)
+        resource.texture[i] = setmetatable(image.load(
+          fs.concat(path, files[i])), textureMeta)
       end
       resource.texture.type = "connected"
       setmetatable(resource.texture, connectedMeta)
     elseif params["texture type"]:lower() == "compound" then
       for i = 1, #files, 1 do
-        resource.texture[i] = image.load(files[i])
+        resource.texture[i] = setmetatable(image.load(
+          fs.concat(path, files[i])), textureMeta)
       end
       resource.texture.type = "compound"
       setmetatable(resource.texture, meta)
     end
+    return resource
   end
 end
 
-local function loadResources()
-  local resources = {}
-  for k, v in ipairs(paths) do
-    for resourceCategory in fs.list(v) do
-      for resource in fs.list(fs.concat(v, resourceCategory)) do
-        resources[resourceCategory .. "." .. resource] = fs.concat(
-          v,
-          resourceCategory,
-          resource)
-      end
+local resources = {}
+for k, v in ipairs(paths) do
+  for resourceCategory in fs.list(v) do
+    for resource in fs.list(fs.concat(v, resourceCategory)) do
+      local name = fs.name(resourceCategory) .. "." .. fs.name(resource)
+      resources[name] = fs.concat(
+        v,
+        resourceCategory,
+        resource)
     end
   end
-  for name, path in pairs(resources) do
-    local metaPath = fs.concat(path, "resource.meta")
-    if fs.exists(metaPath) then
-      local params = {}
+end
+for name, path in pairs(resources) do
+  local metaPath = fs.concat(path, "resource.meta")
+  if fs.exists(metaPath) then
+    local params = {}
 
-      local pname, pvalue, partial
-      for line in io.lines(metaPath) do
-        if not partial then
-          pname, pvalue, partial = line:match("^%s*(.+)%s*:%s*(.+)%s*(\\?)$")
-        else
-          local prevValue = pvalue
-          pvalue, partial = line:match("^%s*(.+)%s*(\\?)$")
-          pvalue = prevValue .. " " .. pvalue
-        end
-        if not partial then
-          params[pname:lower()] = pvalue
-          pname, pvalue, partial = nil, nil, nil
-        end
+    local pname, pvalue, partial
+    for line in io.lines(metaPath) do
+      if not partial then
+        pname, pvalue, partial = line:match("^%s*(.+)%s*:%s*(.+)%s*(\\?)$")
+      else
+        local prevValue = pvalue
+        pvalue, partial = line:match("^%s*(.+)%s*(\\?)$")
+        pvalue = prevValue .. " " .. pvalue
       end
-
-      local resource
-      if params.type:lower() == "texture" then
-        resource = loadTexture(params, name, path)
+      if partial == "" then
+        partial = nil
       end
-      resource.path = path
-      resource.name = name
-      loaded[name] = resource
+      if not partial then
+        params[pname:lower()] = pvalue
+        pname, pvalue, partial = nil, nil, nil
+      end
     end
+
+    local resource
+    if params.type:lower() == "texture" then
+      resource = loadTexture(params, name, path)
+    end
+    resource.path = path
+    resource.name = name
+    loaded[name] = resource
   end
 end
 

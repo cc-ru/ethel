@@ -1,0 +1,16 @@
+{name="ethel",
+ version="0.0.0",
+ dependencies={
+   {name="libvector",version="^1.0",type="required"}},
+ files={
+   {url="src/main.lua",path="/usr/lib/ethel/main.lua"},
+   {url="src/module.lua",path="/usr/lib/ethel/module.lua"},
+   {url="src/resource.lua",path="/usr/lib/ethel/resource.lua"},
+   {url="src/sprite.lua",path="/usr/lib/ethel/sprite.lua"},
+   {url="src/tile.lua",path="/usr/lib/ethel/tile.lua"},
+   {url="src/tilemap.lua",path="/usr/lib/ethel/tilemap.lua"},
+   {url="src/window.lua",path="/usr/lib/ethel/window.lua"},
+   {url="resources/background/main/resource.meta",path="/usr/share/ethel/background/main/resource.meta"},
+   {url="resources/background/main/main.pic",path="/usr/share/ethel/background/main/main.pic"},
+   {url="resources/tile/stone/resource.meta",path="/usr/share/ethel/tile/stone/resource.meta"},
+   {url="resources/tile/stone/stone.pic",path="/usr/share/ethel/tile/stone/stone.pic"}}}

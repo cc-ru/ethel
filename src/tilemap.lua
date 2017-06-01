@@ -24,20 +24,20 @@ local newTilemap do
   end
 
   function meta:fromAbsCoords(x, y)
-    return math.floor((x - 1) / self.gridSize / 2),
-           math.floor((y - 1) / self.gridSize)
+    return math.floor(x / self.gridSize / 2),
+           math.floor(y / self.gridSize)
   end
 
   function meta:toAbsCoords(x, y)
-    return x * self.gridSize * 2 + 1,
-           y * self.gridSize + 1
+    return x * self.gridSize * 2,
+           y * self.gridSize + self.gridSize - 1
   end
 
   function newTilemap(w, h, gridSize)
     local o = {
       w = w,
       h = h,
-      gridSize = gridSize
+      gridSize = gridSize or 3
     }
     return setmetatable(o, meta)
   end
