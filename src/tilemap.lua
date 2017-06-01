@@ -42,3 +42,7 @@ local newTilemap do
     return setmetatable(o, meta)
   end
 end
+
+return {
+  newTilemap = newTilemap
+}

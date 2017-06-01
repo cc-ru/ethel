@@ -60,7 +60,7 @@ local loadTexture do
       resource.texture[1] = setmetatable(image.load(files[1]), textureMeta)
       resource.texture.type = "static"
       setmetatable(resource.texture, meta)
-    elseif params["texture type"]:lower() = "connected" then
+    elseif params["texture type"]:lower() == "connected" then
       for i = 1, 16, 1 do
         resource.texture[i] = setmetatable(image.load(files[i]), textureMeta)
       end
@@ -70,7 +70,7 @@ local loadTexture do
       for i = 1, #files, 1 do
         resource.texture[i] = image.load(files[i])
       end
-      resource.texture.type == "compound"
+      resource.texture.type = "compound"
       setmetatable(resource.texture, meta)
     end
   end
@@ -120,5 +120,12 @@ local function loadResources()
 end
 
 local function getResource(name)
+  if not loaded[name] then
+    error("no such resource: " .. tostring(name))
+  end
   return loaded[name]
 end
+
+return {
+  getResource = getResource
+}
