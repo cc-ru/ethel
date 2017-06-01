@@ -9,7 +9,7 @@ local newWindow do
 
   function meta:toAbsCoords(x, y)
     return x + self.scrollRight - 1,
-           (self.h + self.scrollUp) - (y - 1)
+           (self.h + self.scrollUp) - y
   end
 
   function newWindow(w, h)

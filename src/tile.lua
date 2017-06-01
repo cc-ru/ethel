@@ -34,4 +34,4 @@ local function renderFromResource(resource)
   end
 end
 
-local wall = newTile("wall", renderFromTexture(loadResource("tile.wall")))
+local wall = newTile("wall", renderFromTexture(getResource("tile.wall")))
