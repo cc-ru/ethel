@@ -3,6 +3,7 @@
  dependencies={
    {name="libvector",version="^1.0",type="required"}},
  files={
+   {url="src/collision.lua",path="/usr/lib/ethel/collision.lua"},
    {url="src/main.lua",path="/usr/lib/ethel/main.lua"},
    {url="src/module.lua",path="/usr/lib/ethel/module.lua"},
    {url="src/resource.lua",path="/usr/lib/ethel/resource.lua"},

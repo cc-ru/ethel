@@ -37,7 +37,8 @@ local newWindow do
       tilemap = nil,
       scrollRight = 0,
       scrollUp = 0,
-      background = nil
+      background = nil,
+      sprites = {}
     }
     return setmetatable(o, meta)
   end
