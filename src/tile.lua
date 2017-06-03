@@ -38,5 +38,6 @@ end
 local stone = newTile("stone", renderFromResource(getResource("tile.stone")))
 
 return {
-  stone = stone
+  stone = stone,
+  renderFromResource = renderFromResource
 }

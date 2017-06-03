@@ -3,6 +3,8 @@ local vector = require("vector")
 local module = require("ethel.module")
 local tile = module.load("tile")
 
+local getResource = module.load("resource").getResource
+
 local newSprite do
   local meta = {}
 
@@ -16,7 +18,8 @@ local newSprite do
         emeny = isEnemy,
         render = render,
         update = update,
-        velocity = vector(0, 0)
+        velocity = vector(0, 0),
+        ownVelocity = vector(0, 0)
       }
       if properties then
         properties(o)
@@ -43,5 +46,6 @@ local chort = newSprite(
   end)
 
 return {
-  newSprite = newSprite
+  newSprite = newSprite,
+  player = player
 }

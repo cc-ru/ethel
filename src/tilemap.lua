@@ -1,7 +1,5 @@
 local function checkBounds(x, y, w, h)
-  if x < 0 or y < 0 or x > w - 1 or y > h - 1 then
-    error("{" .. x .. ", " .. y .. "} out of bounds {" .. w .. ", " .. h .. "}")
-  end
+  return x < 0 or y < 0 or x > w - 1 or y > h - 1
 end
 
 local newTilemap do

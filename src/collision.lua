@@ -1,22 +1,25 @@
 local vector = require("vector")
 
-local FRICTION = 0.9
-local GRAVITY = vector(0, 1)
+local GRAVITY = vector(0, -0.1)
 local MAXSPEED = 3
 
 local function updateSprite(window, sprite)
-  sprite.velocity[1] = sprite.velocity * FRICTION
-  sprite.x = sprite.x + sprite.velocity[1]
-  sprite.y = sprite.y + sprite.velocity[2]
+  sprite.velocity[1] = math.min(sprite.velocity[1], MAXSPEED)
+  sprite.velocity[1] = math.min(sprite.velocity[1], MAXSPEED)
+  sprite.ownVelocity[2] = math.min(sprite.ownVelocity[2], MAXSPEED)
+  sprite.ownVelocity[2] = math.min(sprite.ownVelocity[2], MAXSPEED)
+  local v = sprite.velocity + sprite.ownVelocity
+  sprite.x = sprite.x + v[1]
+  sprite.y = sprite.y + v[2]
   local collide = false
-  for x = sprite.x, sprite.x + sprite.w - 1, 1 do
-    for y = sprite.y, sprite.y + sprite.h - 1, 1 do
+  for x = math.floor(sprite.x), math.floor(sprite.x) + sprite.w - 1, 1 do
+    for y = math.floor(sprite.y), math.floor(sprite.y) + sprite.h - 1, 1 do
       local tx, ty = window.tilemap:fromAbsCoords(x, y)
       local tile = window.tilemap:get(tx, ty)
       if tile then
         -- Collision!
-        sprite.x = sprite.x - sprite.velocity[1]
-        sprite.y = sprite.y - sprite.velocity[2]
+        sprite.x = sprite.x - v[1]
+        sprite.y = sprite.y - v[2]
         collide = true
         break
       end
@@ -26,8 +29,8 @@ local function updateSprite(window, sprite)
     end
   end
   if collide then
-    sprite.velocity[1] = 0
-    sprite.velocity[2] = 0
+    sprite.velocity = vector(0, 0)
+    sprite.ownVelocity = vector(0, 0)
   end
   local inMidair = true
   for x = sprite.x, sprite.x + sprite.w - 1, 1 do
@@ -40,9 +43,9 @@ local function updateSprite(window, sprite)
   end
   if inMidair then
     sprite.velocity = sprite.velocity + GRAVITY
+  else
+    sprite.velocity = vector(0, 0)
   end
-  sprite.velocity[1] = math.min(sprite.velocity[1], MAXSPEED)
-  sprite.velocity[2] = math.min(sprite.velocity[2], MAXSPEED)
 end
 
 local function progress(window, t)
@@ -50,6 +53,7 @@ local function progress(window, t)
     for _, sprite in pairs(window.sprites) do
       updateSprite(window, sprite)
     end
+    updateSprite(window, window.player)
   end
 end
 

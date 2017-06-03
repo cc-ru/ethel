@@ -27,7 +27,16 @@ local newWindow do
         end
       end
     end
-    buf.draw()
+    self.player:render(self, self.tilemap,
+                       self:fromAbsCoords(
+                         math.floor(self.player.x),
+                         math.floor(self.player.y + self.player.h - 1)))
+    for k, v in pairs(self.sprites) do
+      v:render(self, self.tilemap,
+               self:fromAbsCoords(
+                 math.floor(v.x),
+                 math.floor(v.y + v.h  - 1)))
+    end
   end
 
   function newWindow(w, h)
@@ -38,7 +47,8 @@ local newWindow do
       scrollRight = 0,
       scrollUp = 0,
       background = nil,
-      sprites = {}
+      sprites = {},
+      player = nil
     }
     return setmetatable(o, meta)
   end
