@@ -18,7 +18,7 @@ local tilemap = module.load("tilemap")
 local window = module.load("window")
 
 local getResource = module.load("resource").getResource
-local progress = module.load("collision").progress
+local progress = module.load("physics").progress
 
 buf.clear(0x000000)
 
