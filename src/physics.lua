@@ -3,12 +3,35 @@ local vector = require("vector")
 local GRAVITY = vector(0, -0.1)
 local MAXSPEED = 3
 
+local function isSpriteInMidair(window, sprite)
+  for x = sprite.x, sprite.x + sprite.w - 1, 1 do
+    local tx, ty = window.tilemap:fromAbsCoords(x, sprite.y - 1)
+    local tile = window.tilemap:get(tx, ty)
+    if tile then
+      return false
+    end
+  end
+  return true
+end
+
+local function signum(v)
+  if v > 0 then
+    return 1
+  elseif v < 0 then
+    return -1
+  else
+    return 0
+  end
+end
+
+local function capSpeed(v, max)
+  v[1] = signum(v[1]) * math.min(math.abs(v[1]), max)
+  v[2] = signum(v[2]) * math.min(math.abs(v[2]), max)
+end
+
 local function updateSprite(window, sprite)
-  sprite.velocity[1] = math.min(sprite.velocity[1], MAXSPEED)
-  sprite.velocity[1] = math.min(sprite.velocity[1], MAXSPEED)
-  sprite.ownVelocity[2] = math.min(sprite.ownVelocity[2], MAXSPEED)
-  sprite.ownVelocity[2] = math.min(sprite.ownVelocity[2], MAXSPEED)
   local v = sprite.velocity + sprite.ownVelocity
+  capSpeed(v, MAXSPEED)
   sprite.x = sprite.x + v[1]
   sprite.y = sprite.y + v[2]
   local collide = false
@@ -32,19 +55,11 @@ local function updateSprite(window, sprite)
     sprite.velocity = vector(0, 0)
     sprite.ownVelocity = vector(0, 0)
   end
-  local inMidair = true
-  for x = sprite.x, sprite.x + sprite.w - 1, 1 do
-    local tx, ty = window.tilemap:fromAbsCoords(x, sprite.y - 1)
-    local tile = window.tilemap:get(tx, ty)
-    if tile then
-      inMidair = false
-      break
-    end
-  end
-  if inMidair then
+  if isSpriteInMidair(window, sprite) then
     sprite.velocity = sprite.velocity + GRAVITY
   else
-    sprite.velocity = vector(0, 0)
+    sprite.velocity[2] = 0
+    sprite.y = math.floor(sprite.y)
   end
 end
 
@@ -58,5 +73,6 @@ local function progress(window, t)
 end
 
 return {
+  isSpriteInMidair = isSpriteInMidair,
   progress = progress
 }

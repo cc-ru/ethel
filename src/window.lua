@@ -1,5 +1,10 @@
 local buf = require("doubleBuffering")
 
+local FORMATMETA = {}
+local function format(p)
+  return setmetatable(p, FORMATMETA)
+end
+
 local newWindow do
   local meta = {}
   meta.__index = meta
@@ -12,6 +17,22 @@ local newWindow do
   function meta:toAbsCoords(x, y)
     return x + self.scrollRight - 1,
            (self.h + self.scrollUp) - y
+  end
+
+  function meta:calculateOffsets()
+    local x, y = self.player.x, self.player.y
+
+    local halfW = self.w / 2
+    local totalWidth = self.tilemap.w * self.tilemap.gridSize
+    if x > halfW and x < totalWidth - halfW then
+      self.scrollRight = math.floor(x - halfW + 0.5)
+    end
+
+    local halfH = self.h / 2
+    local totalHeight = self.tilemap.h * self.tilemap.gridSize
+    if y > halfH and y < totalHeight - halfH then
+      self.scrollUp = math.floor(y - halfH + 0.5)
+    end
   end
 
   function meta:render()
@@ -37,6 +58,29 @@ local newWindow do
                  math.floor(v.x),
                  math.floor(v.y + v.h  - 1)))
     end
+
+    local lines = {}
+    for k, v in ipairs(self.text) do
+      local line = {}
+      for i = 1, #v, 1 do
+        if type(v[i]) == "table" and getmetatable(v[i]) == FORMATMETA then
+          if v[i][1] == "format" then
+            line[#line + 1] = v[i][2]:format(table.unpack(v[i], 3))
+          end
+        elseif type(v[i]) == "table" and (not getmetatable(v[i]) or
+            not getmetatable(v[i]).__tostring) then
+          line[#line + 1] = require("serialization").serialize(v[i])
+        else
+          line[#line + 1] = tostring(v[i])
+        end
+      end
+      if self.debug or not v.debug then
+        lines[#lines + 1] = table.concat(line, "")
+      end
+    end
+    for i = 1, #lines, 1 do
+      buf.text(3, i + 2, 0xFFFFFF, lines[i])
+    end
   end
 
   function newWindow(w, h)
@@ -48,7 +92,27 @@ local newWindow do
       scrollUp = 0,
       background = nil,
       sprites = {},
-      player = nil
+      player = nil,
+      debug = false,
+      text = {
+        {"Lives: ", 3},
+        {"FPS: ", format {"format", "%2.0f", 0}, " / took ", 0, "s",
+         debug=true},
+        {"X: ", 0,
+         debug=true},
+        {"Y: ", 0,
+         debug=true},
+        {"v: ", nil,
+         debug=true},
+        {"ov: ", nil,
+         debug=true},
+        {"sprites: ", 0,
+         debug=true},
+        {"sr: ", 0,
+         debug=true},
+        {"su: ", 0,
+         debug=true}
+      }
     }
     return setmetatable(o, meta)
   end

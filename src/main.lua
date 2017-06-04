@@ -8,10 +8,12 @@ local vector = require("vector")
 local gpu = com.gpu
 
 local w, h = gpu.getViewport()
+buf.start()
 
 local module = require("ethel.module")
 module.clearCache()
 
+local physics = module.load("physics")
 local sprite = module.load("sprite")
 local tile = module.load("tile")
 local tilemap = module.load("tilemap")
@@ -34,7 +36,25 @@ for i = lx, ux, 1 do
   end
 end
 
-mainWindow.tilemap:set(tile.stone, 10, 5)
+for i = 5, 9, 1 do
+  mainWindow.tilemap:set(tile.stone, 10, i)
+end
+for i = 10, 15, 1 do
+  mainWindow.tilemap:set(tile.stone, i, 9)
+end
+
+for i = 4, 15, 1 do
+  mainWindow.tilemap:set(tile.stone, 17, i)
+end
+
+for i = 19, 50, 2 do
+  for j = 0, 1, 1 do
+    mainWindow.tilemap:set(tile.stone, i, j)
+    mainWindow.tilemap:set(nil, i + 1, j)
+    mainWindow.tilemap:set(tile.stone, i, 4)
+    mainWindow.tilemap:set(tile.stone, i + 1, 4)
+  end
+end
 
 mainWindow.player = sprite.player(3, 6)
 
@@ -48,8 +68,12 @@ local listeners = {
      if key == kbd.keys.left then
        mainWindow.player.ownVelocity[1] = -1
      end
-     if key == kbd.keys.up and mainWindow.player.ownVelocity[2] == 0 then
-       mainWindow.player.ownVelocity[2] = 2
+     if key == kbd.keys.up and
+         not physics.isSpriteInMidair(mainWindow, mainWindow.player) then
+       mainWindow.player.ownVelocity[2] = 1.5
+     end
+     if key == kbd.keys.f1 then
+       mainWindow.debug = not mainWindow.debug
      end
    end},
   {"key_up", function(_, _, code, key)
@@ -79,11 +103,21 @@ while running do
   end
   mainWindow.player:update(mainWindow, mainWindow.tilemap)
   progress(mainWindow, 1)
+  mainWindow:calculateOffsets()
+
+  local dt = require("computer").uptime() - t0
+  mainWindow.text[2][2][3] = 1 / dt
+  mainWindow.text[2][4] = dt
+  mainWindow.text[3][2] = mainWindow.player.x
+  mainWindow.text[4][2] = mainWindow.player.y
+  mainWindow.text[5][2] = mainWindow.player.velocity
+  mainWindow.text[6][2] = mainWindow.player.ownVelocity
+  mainWindow.text[7][2] = #mainWindow.sprites
+  mainWindow.text[8][2] = mainWindow.scrollRight
+  mainWindow.text[9][2] = mainWindow.scrollUp
+
   mainWindow:render()
   buf.draw()
-  gpu.setForeground(0xFFFFFF)
-  gpu.set(2, 2, tostring(require("computer").uptime() - t0) .. " {" .. table.concat({mainWindow.player.x, mainWindow.player.y}, "; ") .. "}")
-  gpu.set(2, 3, tostring(mainWindow.player.ownVelocity) .. "; " .. tostring(mainWindow.player.velocity))
 end
 
 for k, v in pairs(listeners) do
