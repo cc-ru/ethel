@@ -23,15 +23,23 @@ local newWindow do
     local x, y = self.player.x, self.player.y
 
     local halfW = self.w / 2
-    local totalWidth = self.tilemap.w * self.tilemap.gridSize
+    local totalWidth = self.tilemap.w * self.tilemap.gridSize * 2
     if x > halfW and x < totalWidth - halfW then
       self.scrollRight = math.floor(x - halfW + 0.5)
+    elseif x <= halfW then
+      self.scrollRight = 0
+    elseif x >= totalWidth - halfW then
+      self.scrollRight = totalWidth - self.w
     end
 
     local halfH = self.h / 2
     local totalHeight = self.tilemap.h * self.tilemap.gridSize
     if y > halfH and y < totalHeight - halfH then
       self.scrollUp = math.floor(y - halfH + 0.5)
+    elseif y <= halfH then
+      self.scrollUp = 0
+    elseif y >= totalHeight - halfH then
+      self.scrollUp = totalHeight - self.h
     end
   end
 

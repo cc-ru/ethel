@@ -47,7 +47,7 @@ for i = 4, 15, 1 do
   mainWindow.tilemap:set(tile.stone, 17, i)
 end
 
-for i = 19, 50, 2 do
+for i = 20, 158, 2 do
   for j = 0, 1, 1 do
     mainWindow.tilemap:set(tile.stone, i, j)
     mainWindow.tilemap:set(nil, i + 1, j)

@@ -1,5 +1,5 @@
 local function checkBounds(x, y, w, h)
-  return x < 0 or y < 0 or x > w - 1 or y > h - 1
+  return x >= 0 and y >= 0 and x <= w - 1 and y <= h - 1
 end
 
 local newTilemap do
@@ -7,18 +7,25 @@ local newTilemap do
   meta.__index = meta
 
   function meta:index(x, y)
-    checkBounds(x, y, self.w, self.h)
-    return y * self.w + x
+    if checkBounds(x, y, self.w, self.h) then
+      return y * self.w + x
+    end
   end
 
   function meta:get(x, y)
-    checkBounds(x, y, self.w, self.h)
-    return self[self:index(x, y)]
+    if checkBounds(x, y, self.w, self.h) then
+      return self[self:index(x, y)]
+    end
   end
 
   function meta:set(tile, x, y)
-    checkBounds(x, y, self.w, self.h)
-    self[self:index(x, y)] = tile
+    if checkBounds(x, y, self.w, self.h) then
+      self[self:index(x, y)] = tile
+    end
+  end
+
+  function meta:inBounds(x, y)
+    return checkBounds(x, y, self.w, self.h)
   end
 
   function meta:fromAbsCoords(x, y)
