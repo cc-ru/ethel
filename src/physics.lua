@@ -76,6 +76,32 @@ local function updateSprite(window, sprite)
       end
     end
   end
+  -- corner case
+  if v[1] ~= 0 and v[2] ~= 0 then
+    local x, y = sprite.x, sprite.y
+    if v[1] < 0 then
+      x = x - 1
+    elseif v[1] > 0 then
+      x = x + sprite.w
+    end
+    if v[2] < 0 then
+      y = y - 1
+    elseif v[2] > 0 then
+      y = y + sprite.h
+    end
+    local tx, ty = window.tilemap:fromAbsCoords(x, y)
+    if window.tilemap:get(tx, ty) or
+        not window.tilemap:inBounds(tx, ty) then
+      if v[1] > v[2] then
+        v[2] = 0
+      elseif v[1] < v[2] then
+        v[2] = 0
+      elseif v[1] == v[2] then
+        -- oh well
+        -- the gravity will do it all
+      end
+    end
+  end
   sprite.x = sprite.x + v[1]
   sprite.y = sprite.y + v[2]
   if checkCollision(window, sprite) then

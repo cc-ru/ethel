@@ -63,10 +63,10 @@ local running = true
 local listeners = {
   {"key_down", function(_, _, code, key)
      if key == kbd.keys.right then
-       mainWindow.player.ownVelocity[1] = 1
+       mainWindow.player.ownVelocity[1] = 1.5
      end
      if key == kbd.keys.left then
-       mainWindow.player.ownVelocity[1] = -1
+       mainWindow.player.ownVelocity[1] = -1.5
      end
      if key == kbd.keys.up and
          not physics.isSpriteInMidair(mainWindow, mainWindow.player) then
