@@ -45,9 +45,8 @@ local function checkCollision(window, sprite)
   return false
 end
 
-local function updateSprite(window, sprite)
-  local v = sprite.velocity + sprite.ownVelocity
-  capSpeed(v, MAXSPEED)
+local function resolveNearTileCollision(window, sprite, v)
+  local collision = {false, false}
   if v[1] ~= 0 then
     local i = sprite.x - 1
     if v[1] > 0 then
@@ -58,7 +57,7 @@ local function updateSprite(window, sprite)
       if window.tilemap:get(tx, ty) or
           not window.tilemap:inBounds(tx, ty) then
         v[1] = 0
-        v[1] = 0
+        collision[1] = true
       end
     end
   end
@@ -72,7 +71,7 @@ local function updateSprite(window, sprite)
       if window.tilemap:get(tx, ty) or
           not window.tilemap:inBounds(tx, ty) then
         v[2] = 0
-        v[2] = 0
+        collision[2] = true
       end
     end
   end
@@ -92,16 +91,17 @@ local function updateSprite(window, sprite)
     local tx, ty = window.tilemap:fromAbsCoords(x, y)
     if window.tilemap:get(tx, ty) or
         not window.tilemap:inBounds(tx, ty) then
-      if v[1] > v[2] then
-        v[2] = 0
-      elseif v[1] < v[2] then
-        v[2] = 0
-      elseif v[1] == v[2] then
-        -- oh well
-        -- the gravity will do it all
-      end
+      v[1] = 0
+      collision[1] = true
     end
   end
+  return collision
+end
+
+local function updateSprite(window, sprite)
+  local v = sprite.velocity + sprite.ownVelocity
+  capSpeed(v, MAXSPEED)
+  local collision = resolveNearTileCollision(window, sprite, v)
   sprite.x = sprite.x + v[1]
   sprite.y = sprite.y + v[2]
   if checkCollision(window, sprite) then
@@ -116,12 +116,18 @@ local function updateSprite(window, sprite)
       sprite.x = sprite.x - cv[1]
       sprite.y = sprite.y - cv[2]
     end
+    local collisionSide = resolveNearTileCollision(window, sprite, v)
+    collision[1] = collision[1] or collisionSide[1]
+    collision[2] = collision[2] or collisionSide[2]
   end
   if isSpriteInMidair(window, sprite) then
     sprite.velocity = sprite.velocity + GRAVITY
   else
     sprite.velocity[2] = 0
     sprite.y = math.floor(sprite.y)
+  end
+  if collision[1] or collision[2] then
+    sprite:handleCollision(window, collision)
   end
 end
 

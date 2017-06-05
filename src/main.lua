@@ -57,6 +57,7 @@ for i = 20, 158, 2 do
 end
 
 mainWindow.player = sprite.player(3, 6)
+mainWindow.sprites[1] = sprite.chort(15, 6)
 
 local running = true
 
