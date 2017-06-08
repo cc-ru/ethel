@@ -3,6 +3,9 @@ local buf = require("doubleBuffering")
 local fs = require("filesystem")
 local image = require("image")
 
+local module = require("module")
+local config = module.load("util.config")
+
 local paths = {
   fs.concat(os.getenv("_"), "../resources"),
   "/usr/share/ethel"
@@ -97,25 +100,7 @@ end
 for name, path in pairs(resources) do
   local metaPath = fs.concat(path, "resource.meta")
   if fs.exists(metaPath) then
-    local params = {}
-
-    local pname, pvalue, partial
-    for line in io.lines(metaPath) do
-      if not partial then
-        pname, pvalue, partial = line:match("^%s*(.+)%s*:%s*(.+)%s*(\\?)$")
-      else
-        local prevValue = pvalue
-        pvalue, partial = line:match("^%s*(.+)%s*(\\?)$")
-        pvalue = prevValue .. " " .. pvalue
-      end
-      if partial == "" then
-        partial = nil
-      end
-      if not partial then
-        params[pname:lower()] = pvalue
-        pname, pvalue, partial = nil, nil, nil
-      end
-    end
+    local params = config.loadFile(metaPath)
 
     local resource
     if params.type:lower() == "texture" then
