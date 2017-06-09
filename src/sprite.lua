@@ -22,7 +22,8 @@ local function newSprite(w, h, isEnemy, render, update, properties)
       render = render,
       update = update,
       velocity = vector(0, 0),
-      ownVelocity = vector(0, 0)
+      ownVelocity = vector(0, 0),
+      type = "sprite"
     }
     setmetatable(o, spriteMeta)
     if properties then

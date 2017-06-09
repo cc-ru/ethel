@@ -9,7 +9,8 @@ local newTile do
   function newTile(type, renderFunc)
     local o = {
       render = renderFunc,
-      type = type
+      tile = type,
+      type = "tile"
     }
     return setmetatable(o, meta)
   end

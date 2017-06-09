@@ -41,6 +41,7 @@ local function loadLevel(path)
     end
   end
   level.tilemap = newTilemap(level.width, level.height)
+  level.sprites = {}
 
   local tiles = load(cfg.tiles)()
 
@@ -49,7 +50,13 @@ local function loadLevel(path)
     local x = 0
     line:gsub("[^ ]", function(c)
       if x < level.width then
-        level.tilemap:set(tiles[c], x, y)
+        if tiles[c] then
+          if tiles[c].type == "tile" then
+            level.tilemap:set(tiles[c], x, y)
+          elseif tiles[c].type == "sprite" then
+            table.insert(level.sprites, tiles[c](x, y))
+          end
+        end
       end
       x = x + 1
     end)

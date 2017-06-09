@@ -20,6 +20,8 @@ end
 
 local loaded = {}
 
+local getResource
+
 local function newResource(resourceType)
   local o = {
     type = resourceType
@@ -85,6 +87,26 @@ local loadTexture do
   end
 end
 
+local function loadLevel(params, name, path)
+  -- Level loader requires module "tile" to be loaded,
+  -- while module "tile" depends on this module.
+  -- To avoid import cycle, we'll load levels
+  -- dynamically -- on request.
+  local resource = newResource("level")
+  setmetatable(resource, {
+    __index = function(self, k)
+      if k == "level" then
+        local level = module.load("level").loadLevel(fs.concat(path,
+                                                               params.level))
+        level.background = getResource(level.background)
+        rawset(self, k, level)
+        return level
+      end
+    end
+  })
+  return resource
+end
+
 local resources = {}
 for k, v in ipairs(paths) do
   for resourceCategory in fs.list(v) do
@@ -105,6 +127,8 @@ for name, path in pairs(resources) do
     local resource
     if params.type:lower() == "texture" then
       resource = loadTexture(params, name, path)
+    elseif params.type:lower() == "level" then
+      resource = loadLevel(params, name, path)
     end
     resource.path = path
     resource.name = name
@@ -112,7 +136,7 @@ for name, path in pairs(resources) do
   end
 end
 
-local function getResource(name)
+function getResource(name)
   if not loaded[name] then
     error("no such resource: " .. tostring(name))
   end
