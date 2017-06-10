@@ -11,7 +11,7 @@ spriteMeta.__index = spriteMeta
 function spriteMeta:handleCollision()
 end
 
-local function newSprite(w, h, isEnemy, render, update, properties)
+local function newSprite(name, w, h, isEnemy, render, update, properties)
   return function(x, y)
     local o = {
       x = x,
@@ -23,7 +23,8 @@ local function newSprite(w, h, isEnemy, render, update, properties)
       update = update,
       velocity = vector(0, 0),
       ownVelocity = vector(0, 0),
-      type = "sprite"
+      type = "sprite",
+      name = name
     }
     setmetatable(o, spriteMeta)
     if properties then
@@ -33,7 +34,7 @@ local function newSprite(w, h, isEnemy, render, update, properties)
   end
 end
 
-local player = newSprite(2, 5, false,
+local player = newSprite("player", 2, 5, false,
                          tile.renderFromResource(getResource("sprite.player")),
                          function() end)
 
@@ -47,6 +48,7 @@ function chortMeta:handleCollision(window, collision)
 end
 
 local chort = newSprite(
+  "chort",
   3,
   3,
   true,

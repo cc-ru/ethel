@@ -13,6 +13,7 @@ buf.start()
 local module = require("ethel.module")
 module.clearCache()
 
+local level = module.load("level")
 local physics = module.load("physics")
 local sprite = module.load("sprite")
 local tile = module.load("tile")
@@ -25,41 +26,17 @@ local progress = module.load("physics").progress
 buf.clear(0x000000)
 
 local mainWindow = window.newWindow(160, 50)
-mainWindow.tilemap = tilemap.newTilemap(160, 50)
-mainWindow.background = getResource("background.main")
+local level = getResource("level.debug").level
+mainWindow.tilemap = level.tilemap
+mainWindow.background = level.background
 
-local lx = mainWindow.tilemap:fromAbsCoords(mainWindow:toAbsCoords(1, h))
-local ux = mainWindow.tilemap:fromAbsCoords(mainWindow:toAbsCoords(w, h))
-for i = lx, ux, 1 do
-  for j = 0, 1, 1 do
-    mainWindow.tilemap:set(tile.stone, i, j)
+for _, v in pairs(level.sprites) do
+  if v.name == "player" then
+    mainWindow.player = v
+  else
+    table.insert(mainWindow.sprites, v)
   end
 end
-
-for i = 5, 9, 1 do
-  mainWindow.tilemap:set(tile.stone, 10, i)
-end
-for i = 10, 15, 1 do
-  mainWindow.tilemap:set(tile.stone, i, 9)
-end
-
-for i = 4, 15, 1 do
-  mainWindow.tilemap:set(tile.stone, 17, i)
-end
-
-for i = 20, 158, 2 do
-  for j = 0, 1, 1 do
-    mainWindow.tilemap:set(tile.stone, i, j)
-    mainWindow.tilemap:set(nil, i + 1, j)
-    mainWindow.tilemap:set(tile.stone, i, 4)
-    mainWindow.tilemap:set(tile.stone, i + 1, 4)
-  end
-end
-
-mainWindow.player = sprite.player(3, 6)
-mainWindow.sprites[1] = sprite.chort(15, 6)
-
-local running = true
 
 local listeners = {
   {"key_down", function(_, _, code, key)
