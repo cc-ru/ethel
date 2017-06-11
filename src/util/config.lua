@@ -5,15 +5,19 @@ local function loadFile(path)
   for line in io.lines(path) do
     if not partial then
       pname, pvalue, partial = line:match("^%s*(.+)%s*:%s*(.+)%s*(\\?)$")
-      if not partial and pvalue == '"""' then
+      if partial == "" and pvalue == '"""' then
+        pvalue = ""
         partial = 2
-      elseif partial then
+      elseif partial ~= "" then
         partial = 1
       end
     else
       if partial == 1 then
         local prevValue = pvalue
         pvalue, partial = line:match("^%s*(.+)%s*(\\?)$")
+        if partial then
+          partial = 1
+        end
         pvalue = prevValue .. " " .. pvalue
       elseif partial == 2 then
         if line == '"""' then

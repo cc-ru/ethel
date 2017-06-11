@@ -1,5 +1,6 @@
-local module = require("module")
+local module = require("ethel.module")
 local config = module.load("util.config")
+local sprite = module.load("sprite")
 local tile = module.load("tile")
 local tilemap = module.load("tilemap")
 
@@ -19,8 +20,11 @@ local function loadLevel(path)
   end
 
   local map = {}
-  for line in cfg.map:gsub("[^\n]+") do
-    table.insert(map, line)
+  local lines = cfg.map
+  while lines ~= "" do
+    local nlPos = lines:find("\n") or 0
+    table.insert(map, lines:sub(1, nlPos - 1))
+    lines = lines:sub(nlPos + 1)
   end
 
   level.height = level.height or #map
@@ -40,27 +44,43 @@ local function loadLevel(path)
       level.width = math.max(level.width, #v)
     end
   end
-  level.tilemap = newTilemap(level.width, level.height)
+  level.tilemap = tilemap.newTilemap(level.width, level.height)
   level.sprites = {}
 
-  local tiles = load(cfg.tiles)()
-
+  local tiles do
+    local env = {}
+    for k, v in pairs(_G) do
+      env[k] = v
+    end
+    env.module = module
+    env.sprite = sprite
+    env.tile = tile
+    env.tilemap = tilemap
+    local chunk, reason = load(cfg.tiles, "level", "t", env)
+    if not chunk then
+      error(reason)
+    end
+    tiles = chunk()
+  end
   for y = 0, level.height - 1, 1 do
-    local line = map[#map - i]
+    local line = map[level.height - y]
     local x = 0
     line:gsub("[^ ]", function(c)
       if x < level.width then
         if tiles[c] then
-          if tiles[c].type == "tile" then
+          if type(tiles[c]) == "table" and tiles[c].type == "tile" then
             level.tilemap:set(tiles[c], x, y)
-          elseif tiles[c].type == "sprite" then
-            table.insert(level.sprites, tiles[c](x, y))
+          elseif type(tiles[c]) == "function" then
+            table.insert(level.sprites,
+                         tiles[c](x * level.tilemap.gridSize * 2,
+                                  y * level.tilemap.gridSize))
           end
         end
       end
       x = x + 1
     end)
   end
+  os.sleep(10)
   return level
 end
 

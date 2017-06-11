@@ -3,7 +3,7 @@ local buf = require("doubleBuffering")
 local fs = require("filesystem")
 local image = require("image")
 
-local module = require("module")
+local module = require("ethel.module")
 local config = module.load("util.config")
 
 local paths = {

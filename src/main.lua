@@ -13,7 +13,6 @@ buf.start()
 local module = require("ethel.module")
 module.clearCache()
 
-local level = module.load("level")
 local physics = module.load("physics")
 local sprite = module.load("sprite")
 local tile = module.load("tile")
@@ -71,7 +70,7 @@ for k, v in pairs(listeners) do
   event.listen(v[1], v[2])
 end
 
-while running do
+while true do
   local t0 = require("computer").uptime()
   if event.pull(0.05, "interrupted") then
     break
