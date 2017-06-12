@@ -30,7 +30,7 @@ mainWindow.tilemap = level.tilemap
 mainWindow.background = level.background
 
 for _, v in pairs(level.sprites) do
-  if v.name == "player" then
+  if v:isa(sprite.Player) then
     mainWindow.player = v
   else
     table.insert(mainWindow.sprites, v)

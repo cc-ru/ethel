@@ -25,7 +25,6 @@ local function loadLevel(path)
     local nlPos = lines:find("\n")
     table.insert(map, lines:sub(1, (nlPos or 0) - 1))
     lines = nlPos and lines:sub(nlPos + 1) or ""
-    print(nlPos, #lines)
   end
 
   level.height = level.height or #map
@@ -70,12 +69,12 @@ local function loadLevel(path)
       if c ~= " " then
         if x < level.width then
           if tiles[c] then
-            if type(tiles[c]) == "table" and tiles[c].type == "tile" then
+            if tiles[c].type == "tile" then
               level.tilemap:set(tiles[c], x, y)
-            elseif type(tiles[c]) == "function" then
+            elseif tiles[c]:isa(sprite.Sprite) then
               table.insert(level.sprites,
-                           tiles[c](x * level.tilemap.gridSize * 2,
-                                    y * level.tilemap.gridSize))
+                           tiles[c]:new(x * level.tilemap.gridSize * 2,
+                                        y * level.tilemap.gridSize))
             end
           end
         end

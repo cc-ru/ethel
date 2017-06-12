@@ -1,68 +1,66 @@
+local objects = require("lua-objects.lua_objects")
 local vector = require("vector")
 
 local module = require("ethel.module")
 local tile = module.load("tile")
 
 local getResource = module.load("resource").getResource
+local newClass = objects.newClass
 
-local spriteMeta = {}
-spriteMeta.__index = spriteMeta
+local Sprite = newClass(nil, {name="Sprite"})
+Sprite.x = 0
+Sprite.y = 0
+Sprite.w = 0
+Sprite.h = 0
+Sprite.isEnemy = false
+Sprite.render = function() end
+Sprite.velocity = vector(0, 0)
+Sprite.ownVelocity = vector(0, 0)
+Sprite.sprite = ""
 
-function spriteMeta:handleCollision()
+function Sprite:__new__(x, y)
+  self.x = x
+  self.y = y
+  self.w = self.w * 2
+  self.velocity = vector(0, 0)
+  self.ownVelocity = vector(0, 0)
 end
 
-local function newSprite(name, w, h, isEnemy, render, update, properties)
-  return function(x, y)
-    local o = {
-      x = x,
-      y = y,
-      w = w * 2,
-      h = h,
-      emeny = isEnemy,
-      render = render,
-      update = update,
-      velocity = vector(0, 0),
-      ownVelocity = vector(0, 0),
-      type = "sprite",
-      name = name
-    }
-    setmetatable(o, spriteMeta)
-    if properties then
-      properties(o)
-    end
-    return o
-  end
+function Sprite:handleCollision()
 end
 
-local player = newSprite("player", 2, 5, false,
-                         tile.renderFromResource(getResource("sprite.player")),
-                         function() end)
+function Sprite:update()
+end
 
-local chortMeta = {}
-chortMeta.__index = chortMeta
 
-function chortMeta:handleCollision(window, collision)
+local Player = newClass(Sprite, {name="Player"})
+Player.w = 2
+Player.h = 5
+Player.isEnemy = false
+Player.render = tile.renderFromResource(getResource("sprite.player"))
+Player.sprite = "player"
+
+
+local Chort = newClass(Sprite, {name="Chort"})
+Chort.w = 3
+Chort.h = 3
+Chort.isEnemy = true
+Chort.render = tile.renderFromResource(getResource("sprite.chort"))
+Chort.direction = -1
+Chort.sprite = "chort"
+
+function Chort:update(window, tilemap)
+  self.ownVelocity[1] = 0.2 * self.direction
+end
+
+function Chort:handleCollision(window, collision)
   if collision[1] then
     self.direction = -self.direction
   end
 end
 
-local chort = newSprite(
-  "chort",
-  3,
-  3,
-  true,
-  tile.renderFromResource(getResource("sprite.chort")),
-  function(self, window, tilemap)
-    self.ownVelocity = vector(0.2 * self.direction, 0)
-  end,
-  function(o)
-    o.direction = -1
-    setmetatable(o, chortMeta)
-  end)
-
 return {
-  newSprite = newSprite,
-  player = player,
-  chort = chort
+  Sprite = Sprite,
+  Player = Player,
+  Chort = Chort
 }
