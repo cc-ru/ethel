@@ -22,9 +22,10 @@ local function loadLevel(path)
   local map = {}
   local lines = cfg.map
   while lines ~= "" do
-    local nlPos = lines:find("\n") or 0
-    table.insert(map, lines:sub(1, nlPos - 1))
-    lines = lines:sub(nlPos + 1)
+    local nlPos = lines:find("\n")
+    table.insert(map, lines:sub(1, (nlPos or 0) - 1))
+    lines = nlPos and lines:sub(nlPos + 1) or ""
+    print(nlPos, #lines)
   end
 
   level.height = level.height or #map
@@ -65,22 +66,23 @@ local function loadLevel(path)
   for y = 0, level.height - 1, 1 do
     local line = map[level.height - y]
     local x = 0
-    line:gsub("[^ ]", function(c)
-      if x < level.width then
-        if tiles[c] then
-          if type(tiles[c]) == "table" and tiles[c].type == "tile" then
-            level.tilemap:set(tiles[c], x, y)
-          elseif type(tiles[c]) == "function" then
-            table.insert(level.sprites,
-                         tiles[c](x * level.tilemap.gridSize * 2,
-                                  y * level.tilemap.gridSize))
+    line:gsub(".", function(c)
+      if c ~= " " then
+        if x < level.width then
+          if tiles[c] then
+            if type(tiles[c]) == "table" and tiles[c].type == "tile" then
+              level.tilemap:set(tiles[c], x, y)
+            elseif type(tiles[c]) == "function" then
+              table.insert(level.sprites,
+                           tiles[c](x * level.tilemap.gridSize * 2,
+                                    y * level.tilemap.gridSize))
+            end
           end
         end
       end
       x = x + 1
     end)
   end
-  os.sleep(10)
   return level
 end
 

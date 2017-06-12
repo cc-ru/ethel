@@ -92,6 +92,10 @@ while true do
   mainWindow.text[7][2] = #mainWindow.sprites
   mainWindow.text[8][2] = mainWindow.scrollRight
   mainWindow.text[9][2] = mainWindow.scrollUp
+  mainWindow.text[10][3][3] = mainWindow.sprites[1].x
+  mainWindow.text[10][5][3] = mainWindow.sprites[1].y
+  mainWindow.text[11][2] = mainWindow.sprites[1].velocity
+  mainWindow.text[12][2] = mainWindow.sprites[1].ownVelocity
 
   mainWindow:render()
   buf.draw()

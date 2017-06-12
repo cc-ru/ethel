@@ -54,7 +54,7 @@ local chort = newSprite(
   true,
   tile.renderFromResource(getResource("sprite.chort")),
   function(self, window, tilemap)
-    self.velocity = vector(0.2 * self.direction, 0)
+    self.ownVelocity = vector(0.2 * self.direction, 0)
   end,
   function(o)
     o.direction = -1
