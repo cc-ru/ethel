@@ -104,6 +104,7 @@ local newWindow do
       debug = false,
       text = {
         {"Lives: ", 3},
+        {"Level: ", -1, "-", -1},
         {"FPS: ", format {"format", "%2.0f", 0}, " / took ", 0, "s",
          debug=true},
         {"X: ", 0,

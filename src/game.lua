@@ -15,8 +15,6 @@ local newClass = objects.newClass
 
 local W, H = require("component").gpu.getViewport()
 
-local curState = nil
-
 
 local State = newClass(nil, {name="State"})
 
@@ -46,6 +44,8 @@ function Menu:__new__()
       self.pos = self.pos - 1
     elseif key == kbd.keys.down and self.pos < #self.menu then
       self.pos = self.pos + 1
+    elseif key == kbd.keys.enter then
+      -- TODO: handle enter
     end
   end)
 end
@@ -162,3 +162,9 @@ function Game:update()
 
   self:superCall('update')
 end
+
+return {
+  State = State,
+  Menu = Menu,
+  Game = Game
+}
