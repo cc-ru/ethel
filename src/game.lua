@@ -2,7 +2,7 @@ local comp = require("computer")
 local kbd = require("keyboard")
 
 local buf = require("doubleBuffering")
-local objects = require("lua-object.lua_objects")
+local objects = require("lua-objects.lua_objects")
 
 local module = require("ethel.module")
 local evt = module.load("event")
@@ -92,13 +92,9 @@ function Game:__new__(level)
   self.window = window.newWindow(W, H)
   self.window.tilemap = level.tilemap:clone()
   self.window.background = level.background
-  for _, v in pairs(level.sprites) do
-    if v:isa(sprite.Player) then
-      self.window.player = v
-    else
-      table.insert(self.window.sprites, v)
-    end
-  end
+  self.window.player = level.player
+  self.window.sprites = level.sprites
+  self.level = level
 
   evt.register("game.onKeyDown", "key_down", function(_, _, code, key)
      if key == kbd.keys.right then
@@ -136,6 +132,7 @@ end
 
 function Game:update()
   local dt = comp.uptime() - self.time
+  self.time = comp.uptime()
   for k, v in pairs(self.window.sprites) do
     v:update(self.window, self.window.tilemap)
   end
@@ -144,19 +141,27 @@ function Game:update()
   physics.progress(self.window, 1)
   self.window:calculateOffsets()
 
-  self.window.text[2][2][3] = 1 / dt
-  self.window.text[2][4] = dt
-  self.window.text[3][2] = self.window.player.x
-  self.window.text[4][2] = self.window.player.y
-  self.window.text[5][2] = self.window.player.velocity
-  self.window.text[6][2] = self.window.player.ownVelocity
-  self.window.text[7][2] = #self.window.sprites
-  self.window.text[8][2] = self.window.scrollRight
-  self.window.text[9][2] = self.window.scrollUp
-  self.window.text[10][3][3] = self.window.sprites[1].x
-  self.window.text[10][5][3] = self.window.sprites[1].y
-  self.window.text[11][2] = self.window.sprites[1].velocity
-  self.window.text[12][2] = self.window.sprites[1].ownVelocity
+  self.window.text[1][2] = 3
+  self.window.text[2][2] = self.level.world
+  self.window.text[2][4] = self.level.level
+  self.window.text[3][2][3] = 1 / dt
+  self.window.text[3][4] = dt
+  self.window.text[4][2] = comp.totalMemory() - comp.freeMemory()
+  self.window.text[4][4] = comp.freeMemory()
+  self.window.text[4][6] = comp.totalMemory()
+  self.window.text[4][8][3] = (comp.totalMemory() -
+                               comp.freeMemory()) / comp.totalMemory()
+  self.window.text[5][2] = self.window.player.x
+  self.window.text[6][2] = self.window.player.y
+  self.window.text[7][2] = self.window.player.velocity
+  self.window.text[8][2] = self.window.player.ownVelocity
+  self.window.text[9][2] = #self.window.sprites
+  self.window.text[10][2] = self.window.scrollRight
+  self.window.text[11][2] = self.window.scrollUp
+  self.window.text[12][3][3] = self.window.sprites[1].x
+  self.window.text[12][5][3] = self.window.sprites[1].y
+  self.window.text[13][2] = self.window.sprites[1].velocity
+  self.window.text[14][2] = self.window.sprites[1].ownVelocity
 
   self.window:render()
 

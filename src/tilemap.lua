@@ -38,6 +38,21 @@ local newTilemap do
            y * self.gridSize + self.gridSize - 1
   end
 
+  function meta:clone()
+    local o = {
+      w = self.w,
+      h = self.h,
+      gridSize = self.gridSize
+    }
+    setmetatable(o, meta)
+    for k, v in pairs(self) do
+      if type(k) == "number" then
+        o[k] = v
+      end
+    end
+    return o
+  end
+
   function newTilemap(w, h, gridSize)
     local o = {
       w = w,

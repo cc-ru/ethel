@@ -72,9 +72,14 @@ local function loadLevel(path)
             if tiles[c].type == "tile" then
               level.tilemap:set(tiles[c], x, y)
             elseif tiles[c]:isa(sprite.Sprite) then
-              table.insert(level.sprites,
-                           tiles[c]:new(x * level.tilemap.gridSize * 2,
-                                        y * level.tilemap.gridSize))
+              if tiles[c]:isa(sprite.Player) then
+                level.player = tiles[c](x * level.tilemap.gridSize * 2,
+                                        y * level.tilemap.gridSize)
+              else
+                table.insert(level.sprites,
+                             tiles[c](x * level.tilemap.gridSize * 2,
+                                      y * level.tilemap.gridSize))
+              end
             end
           end
         end

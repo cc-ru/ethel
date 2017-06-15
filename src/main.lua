@@ -10,13 +10,14 @@ local gpu = com.gpu
 buf.start()
 
 local module = require("ethel.module")
+local game = module.load("game")
 module.clearCache()
 
 local getResource = module.load("resource").getResource
 
 buf.clear(0x000000)
 
-local curState = state.Game(getResource("level.debug").level)
+local curState = game.Game(getResource("level.debug").level)
 
 while true do
   if event.pull(0.05, "interrupted") then
