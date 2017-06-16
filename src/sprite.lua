@@ -37,8 +37,8 @@ local Player = newClass(Sprite, {name="Player"})
 Player.w = 2
 Player.h = 5
 Player.isEnemy = false
-Player.render = tile.renderFromResource(getResource("sprite.player"))
 Player.sprite = "player"
+Player.render = tile.renderFromResource(getResource("sprite.player"))
 
 
 local Chort = newClass(Sprite, {name="Chort"})

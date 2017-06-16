@@ -1,18 +1,17 @@
 local com = require("component")
 local event = require("event")
-local kbd = require("keyboard")
 
 local buf = require("doubleBuffering")
-local vector = require("vector")
 
 local gpu = com.gpu
 
 buf.start()
 
 local module = require("ethel.module")
+module.clearCache()
+
 local evt = module.load("event")
 local game = module.load("game")
-module.clearCache()
 
 local getResource = module.load("resource").getResource
 
