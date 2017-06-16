@@ -1,6 +1,7 @@
 {name="ethel",
  version="0.0.0",
  dependencies={
+   {name="libaevent",version="^1.1",type="required"},
    {name="libvector",version="^1.0",type="required"}},
  files={
    {url="src/event.lua",path="/usr/lib/ethel/event.lua"},
@@ -23,5 +24,7 @@
    {url="resources/sprite/player/player.pic",path="/usr/share/ethel/sprite/player/player.pic"},
    {url="resources/sprite/chort/resource.meta",path="/usr/share/ethel/sprite/chort/resource.meta"},
    {url="resources/sprite/chort/chort.pic",path="/usr/share/ethel/sprite/chort/chort.pic"},
+   {url="resources/texture/title/resource.meta",path="/usr/share/ethel/texture/title/resource.meta"},
+   {url="resources/texture/title/title.pic",path="/usr/share/ethel/texture/title/title.pic"},
    {url="resources/level/debug/resource.meta",path="/usr/share/ethel/level/debug/resource.meta"},
    {url="resources/level/debug/debug.level",path="/usr/share/ethel/level/debug/debug.level"}}}

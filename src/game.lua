@@ -31,27 +31,28 @@ end
 
 local Menu = newClass(State, {name="Menu"})
 Menu.menu = {
-  "Start game",
-  "Quit"
+  {"Start game", "game-start"},
+  {"Quit", "quit"}
 }
-Menu.ITEM_COLOR = 0xB2B2B2
+Menu.ITEM_COLOR = 0xD2D2D2
 Menu.SELECTED_ITEM_COLOR = 0xFFFFFF
 
 function Menu:__new__()
   self.pos = 1
-  evt.register("menu.onKeyDown", "key_down", function(_, _, code, key)
+  self._subOnKeyDown = evt.engine:subscribe("key-down", 0, function(hdr, e)
+    local key = e[3]
     if key == kbd.keys.up and self.pos > 1 then
       self.pos = self.pos - 1
     elseif key == kbd.keys.down and self.pos < #self.menu then
       self.pos = self.pos + 1
     elseif key == kbd.keys.enter then
-      -- TODO: handle enter
+      evt.engine:push(evt.engine:event(self.menu[self.pos][2])(self))
     end
   end)
 end
 
 function Menu:__destroy__()
-  evt.unregister("menu.onKeyDown")
+  self._subOnKeyDown:destroy()
 end
 
 function Menu:update()
@@ -63,12 +64,14 @@ function Menu:update()
   local y = 6
   texture:draw(x, y)
 
-  y = y + h + 2
   local menuWidth = 0
   for k, v in pairs(self.menu) do
-    menuWidth = math.max(menuWidth, #v)
+    menuWidth = math.max(menuWidth, #v[1])
   end
   x = math.floor(W / 2 - menuWidth / 2)
+
+  local menuHeight = #self.menu * 2 - 1
+  y = math.floor(H / 2 - menuHeight / 2)
 
   for i, item in ipairs(self.menu) do
     local color
@@ -77,7 +80,7 @@ function Menu:update()
     else
       color = self.ITEM_COLOR
     end
-    buf.text(x, y, color, item)
+    buf.text(x, y, color, item[1])
     y = y + 2
   end
 
@@ -96,38 +99,40 @@ function Game:__new__(level)
   self.window.sprites = level.sprites
   self.level = level
 
-  evt.register("game.onKeyDown", "key_down", function(_, _, code, key)
-     if key == kbd.keys.right then
-       self.window.player.ownVelocity[1] = 1.5
-     end
-     if key == kbd.keys.left then
-       self.window.player.ownVelocity[1] = -1.5
-     end
-     if key == kbd.keys.up and
-         not physics.isSpriteInMidair(self.window, self.window.player) then
-       self.window.player.ownVelocity[2] = 1.5
-     end
-     if key == kbd.keys.f1 then
-       self.window.debug = not self.window.debug
-     end
+  self._subOnKeyDown = evt.engine:subscribe("key-down", 0, function(hdr, e)
+    local key = e[3]
+    if key == kbd.keys.right then
+      self.window.player.ownVelocity[1] = 1.5
+    end
+    if key == kbd.keys.left then
+      self.window.player.ownVelocity[1] = -1.5
+    end
+    if key == kbd.keys.up and
+        not physics.isSpriteInMidair(self.window, self.window.player) then
+      self.window.player.ownVelocity[2] = 1.5
+    end
+    if key == kbd.keys.f1 then
+      self.window.debug = not self.window.debug
+    end
   end)
 
-  evt.register("game.onKeyUp", "key_up", function(_, _, code, key)
-     if key == kbd.keys.right then
-       self.window.player.ownVelocity[1] = 0
-     end
-     if key == kbd.keys.left then
-       self.window.player.ownVelocity[1] = 0
-     end
-     if key == kbd.keys.up then
-       self.window.player.ownVelocity[2] = 0
-     end
+  self._subOnKeyUp = evt.engine:subscribe("key-up", 0, function(hdr, e)
+    local key = e[3]
+    if key == kbd.keys.right then
+      self.window.player.ownVelocity[1] = 0
+    end
+    if key == kbd.keys.left then
+      self.window.player.ownVelocity[1] = 0
+    end
+    if key == kbd.keys.up then
+      self.window.player.ownVelocity[2] = 0
+    end
   end)
 end
 
 function Game:__destroy__()
-  evt.unregister("game.onKeyUp")
-  evt.unregister("game.onKeyDown")
+  self._subOnKeyDown:destroy()
+  self._subOnKeyUp:destroy()
 end
 
 function Game:update()

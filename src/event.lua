@@ -1,23 +1,8 @@
-local event = require("event")
+local engine = require("aevent")()
 
-local listeners = {}
-
-local function unregister(name)
-  if listeners[name] then
-    event.ignore(listeners[name].e, listeners[name].handler)
-  end
-end
-
-local function register(name, e, handler)
-  unregister(name)
-  event.listen(e, handler)
-  listeners[name] = {
-    e = e,
-    handler = handler
-  }
-end
+engine:stdEvent("key_down", engine:event("key-down"))
+engine:stdEvent("key_up", engine:event("key-up"))
 
 return {
-  register = register,
-  unregister = unregister
+  engine = engine
 }

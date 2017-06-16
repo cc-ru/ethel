@@ -10,6 +10,7 @@ local gpu = com.gpu
 buf.start()
 
 local module = require("ethel.module")
+local evt = module.load("event")
 local game = module.load("game")
 module.clearCache()
 
@@ -17,9 +18,18 @@ local getResource = module.load("resource").getResource
 
 buf.clear(0x000000)
 
-local curState = game.Game(getResource("level.debug").level)
+local curState = game.Menu()
+local running = true
 
-while true do
+evt.engine:subscribe("game-start", 0, function(hdr, e)
+  curState = game.Game(getResource("level.debug").level)
+end)
+
+evt.engine:subscribe("quit", 0, function(hdr, e)
+  running = false
+end)
+
+while running do
   if event.pull(0.05, "interrupted") then
     break
   end
@@ -28,6 +38,8 @@ while true do
 end
 
 curState:destroy()
+
+evt.engine:__gc()
 
 buf.clear(0x000000)
 buf.draw(true)
