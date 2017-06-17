@@ -107,6 +107,10 @@ local function loadLevel(params, name, path)
   return resource
 end
 
+local function loadMap(params, name, path)
+  -- TODO: map structure
+end
+
 local resources = {}
 for k, v in ipairs(paths) do
   for resourceCategory in fs.list(v) do
@@ -129,6 +133,8 @@ for name, path in pairs(resources) do
       resource = loadTexture(params, name, path)
     elseif params.type:lower() == "level" then
       resource = loadLevel(params, name, path)
+    elseif params.type:lower() == "map" then
+      resource = loadMap(params, name, path)
     end
     resource.path = path
     resource.name = name
