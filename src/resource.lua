@@ -108,7 +108,14 @@ local function loadLevel(params, name, path)
 end
 
 local function loadMap(params, name, path)
-  -- TODO: map structure
+  local resource = newResource("map")
+  resource.map = {}
+  resource.map.world = tonumber(params.world) or -1
+  resource.map.levels = {}
+  for v in params.levels:gmatch("%S+") do
+    table.insert(resource.map.levels, v)
+  end
+  return resource
 end
 
 local resources = {}
