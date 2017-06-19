@@ -1,20 +1,12 @@
+local objects = require("lua-objects.lua_objects")
+
 local module = require("ethel.module")
+local evt = module.load("event")
 
 local getResource = module.load("resource").getResource
 
-local newTile do
-  local meta = {}
-  meta.__index = meta
+local newClass = objects.newClass
 
-  function newTile(type, renderFunc)
-    local o = {
-      render = renderFunc,
-      tile = type,
-      type = "tile"
-    }
-    return setmetatable(o, meta)
-  end
-end
 
 local function renderFromResource(resource)
   return function(self, window, tilemap, gx, gy)
@@ -36,9 +28,62 @@ local function renderFromResource(resource)
   end
 end
 
-local stone = newTile("stone", renderFromResource(getResource("tile.stone")))
+
+local Tile = newClass(nil, {name="Tile"})
+Tile.passable = false
+
+function Tile:render()
+  error("abstract class " .. self.name .. " doesn't have :render()")
+end
+
+
+local StaticTile = newClass(Tile, {name="StaticTile"})
+local DynamicTile = newClass(Tile, {name="DynamicTile"})
+
+
+local Stone = newClass(StaticTile, {name="Stone"})
+Stone.render = renderFromResource(getResource("tile.stone"))
+
+
+local Teleporter = newClass(DynamicTile, {name="Teleporter"})
+Teleporter.target = getResource("level.debug")
+Teleporter.render = renderFromResource(getResource("tile.Teleporter"))
+
+function Teleporter:__new__(x, y)
+  self.x = x
+  self.y = y
+  self._onPlayerDown = evt:subscribe("player.down", 0,
+                                     self.onPlayerDown)
+end
+
+function Teleporter.onPlayerDown(hdr, e)
+  local x, y = self.x, self.y
+
+  local lx, py = e.player.x, e.player.y
+  local ux = lx + e.player.w - 1
+  lx, py = e.window.tilemap:fromAbsCoords(lx, py)
+  ux = e.window.tilemap:fromAbsCoords(ux, py)
+
+  if py - 1 == y then
+    for ix = lx, ux, 1 do
+      if ix == x then
+        evt:push(evt:event("command.set-level"){level=self.target})
+        return
+      end
+    end
+  end
+end
+
+function Teleporter:__destroy__()
+  self._onPlayerDown:destroy()
+end
+
 
 return {
-  stone = stone,
-  renderFromResource = renderFromResource
+  renderFromResource = renderFromResource,
+  Tile = Tile,
+  StaticTile = StaticTile,
+  DynamicTile = DynamicTile,
+  Stone = Stone,
+  Teleporter = Teleporter
 }
