@@ -107,17 +107,6 @@ local function loadLevel(params, name, path)
   return resource
 end
 
-local function loadMap(params, name, path)
-  local resource = newResource("map")
-  resource.map = {}
-  resource.map.world = tonumber(params.world) or -1
-  resource.map.levels = {}
-  for v in params.levels:gmatch("%S+") do
-    table.insert(resource.map.levels, v)
-  end
-  return resource
-end
-
 local resources = {}
 for k, v in ipairs(paths) do
   for resourceCategory in fs.list(v) do
@@ -140,8 +129,6 @@ for name, path in pairs(resources) do
       resource = loadTexture(params, name, path)
     elseif params.type:lower() == "level" then
       resource = loadLevel(params, name, path)
-    elseif params.type:lower() == "map" then
-      resource = loadMap(params, name, path)
     end
     resource.path = path
     resource.name = name
