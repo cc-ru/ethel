@@ -69,8 +69,8 @@ local function loadLevel(path)
       if c ~= " " then
         if x < level.width then
           if tiles[c] then
-            if tiles[c].type == "tile" then
-              level.tilemap:set(tiles[c], x, y)
+            if tiles[c]:isa(tile.Tile) then
+              level.tilemap:set(tiles[c]:create(x, y), x, y)
             elseif tiles[c]:isa(sprite.Sprite) then
               if tiles[c]:isa(sprite.Player) then
                 level.player = tiles[c](x * level.tilemap.gridSize * 2,

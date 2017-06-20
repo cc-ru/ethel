@@ -10,6 +10,10 @@ buf.start()
 local module = require("ethel.module")
 module.clearCache()
 
+local log = module.load("util.logger")
+log.init("/ethel.log")
+log.logger.level = log.logger.LEVELS.DEBUG
+
 local evt = module.load("event")
 local game = module.load("game")
 
@@ -39,6 +43,7 @@ end
 curState:destroy()
 
 evt.engine:__gc()
+log.logger:destroy()
 
 buf.clear(0x000000)
 buf.draw(true)

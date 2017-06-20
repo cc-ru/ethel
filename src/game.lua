@@ -95,8 +95,13 @@ function Game:__new__(level)
   self.window = window.newWindow(W, H)
   self.window.tilemap = level.tilemap:clone()
   self.window.background = level.background
-  self.window.player = level.player
-  self.window.sprites = level.sprites
+  self.window.player = level.player.class(level.player.x,
+                                          level.player.y)
+  self.window.sprites = {}
+  for k, v in pairs(level.sprites) do
+    table.insert(self.window.sprites, v.class(v.x, v.y))
+  end
+
   self.level = level
 
   self._subOnKeyDown = evt.engine:subscribe("key-down", 0, function(hdr, e)

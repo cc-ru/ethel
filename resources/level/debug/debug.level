@@ -6,7 +6,7 @@ Height: 50
 Background: background.main
 Tiles: """
 local tiles = {
-  ["#"] = tile.stone,
+  ["#"] = tile.Stone,
   ["@"] = sprite.Player,
   ["!"] = sprite.Chort
 }

@@ -33,12 +33,24 @@ local Tile = newClass(nil, {name="Tile"})
 Tile.passable = false
 
 function Tile:render()
-  error("abstract class " .. self.name .. " doesn't have :render()")
+  error("abstract class " .. self.NAME .. " doesn't have :render()")
 end
 
 
 local StaticTile = newClass(Tile, {name="StaticTile"})
+StaticTile.instance = nil
+
+function StaticTile:create()
+  self.instance = self.instance or self()
+  return self.instance
+end
+
+
 local DynamicTile = newClass(Tile, {name="DynamicTile"})
+
+function DynamicTile:create(x, y)
+  return self(x, y)
+end
 
 
 local Stone = newClass(StaticTile, {name="Stone"})
@@ -47,7 +59,7 @@ Stone.render = renderFromResource(getResource("tile.stone"))
 
 local Teleporter = newClass(DynamicTile, {name="Teleporter"})
 Teleporter.target = getResource("level.debug")
-Teleporter.render = renderFromResource(getResource("tile.Teleporter"))
+Teleporter.render = renderFromResource(getResource("tile.teleporter"))
 
 function Teleporter:__new__(x, y)
   self.x = x

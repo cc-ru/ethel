@@ -38,6 +38,12 @@ local newTilemap do
            y * self.gridSize + self.gridSize - 1
   end
 
+  function meta:fromIndex(i)
+    local x = i % self.w
+    local y = i - x
+    return x, y
+  end
+
   function meta:clone()
     local o = {
       w = self.w,
@@ -47,7 +53,7 @@ local newTilemap do
     setmetatable(o, meta)
     for k, v in pairs(self) do
       if type(k) == "number" then
-        o[k] = v
+        o[k] = v.class:create(self:fromIndex(k))
       end
     end
     return o
