@@ -6,7 +6,6 @@ local objects = require("lua-objects.lua_objects")
 
 local module = require("ethel.module")
 local evt = module.load("event")
-local log = module.load("util.logger")
 local physics = module.load("physics")
 local sprite = module.load("sprite")
 local window = module.load("window")
@@ -106,7 +105,6 @@ function Game:__new__(level)
   self.level = level
 
   self._subOnKeyDown = evt.engine:subscribe("key-down", 0, function(hdr, e)
-    log.logger:debug("Game.key-down", hdr, e)
     local key = e[3]
     if key == kbd.keys.right then
       self.window.player.ownVelocity[1] = 1.5
@@ -126,11 +124,6 @@ function Game:__new__(level)
       self.window.debug = not self.window.debug
     end
   end)
-
-  log.logger:debug(require("serialization").serialize(
-                     self._subOnKeyDown, math.huge),
-                   require("serialization").serialize(
-                     evt.engine.stdEvents, math.huge))
 
   self._subOnKeyUp = evt.engine:subscribe("key-up", 0, function(hdr, e)
     local key = e[3]

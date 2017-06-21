@@ -2,7 +2,6 @@ local objects = require("lua-objects.lua_objects")
 
 local module = require("ethel.module")
 local evt = module.load("event")
-local log = module.load("util.logger")
 
 local getResource = module.load("resource").getResource
 
@@ -76,12 +75,10 @@ function Teleporter:onPlayerDown(hdr, e)
   local ux = lx + e.window.player.w - 1
   lx, py = e.window.tilemap:fromAbsCoords(lx, py)
   ux = e.window.tilemap:fromAbsCoords(ux, py)
-  log.logger:debug(x, y, lx, ux, py)
 
   if py - 1 == y then
     for ix = lx, ux, 1 do
       if ix == x then
-        log.logger:debug("matches", x, ix)
         evt.engine:push(
           evt.engine:event("command.set-level"){level=self.target.level})
         return
