@@ -25,6 +25,7 @@ local curState = game.Menu()
 local running = true
 
 evt.engine:subscribe("game-start", 0, function(hdr, e)
+  curState:destroy()
   curState = game.Game(getResource("level.debug").level)
 end)
 
@@ -32,11 +33,15 @@ evt.engine:subscribe("quit", 0, function(hdr, e)
   running = false
 end)
 
+evt.engine:subscribe("command.set-level", 0, function(hdr, e)
+  curState:destroy()
+  curState = game.Game(e.level)
+end)
+
 while running do
   if event.pull(0.05, "interrupted") then
     break
   end
-
   curState:update()
 end
 

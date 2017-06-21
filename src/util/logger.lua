@@ -82,6 +82,32 @@ function Logger:fatal(...)
   end
 end
 
+function Logger:traceback(level)
+  level = level or "DEBUG"
+  local stackInfo = debug.getinfo(3)
+  self:writeLine(level, stackInfo, "Stack traceback:")
+  for stackLevel = 1, math.huge, 1 do
+    local info = debug.getinfo(stackLevel, "Slnu")
+    if not info then
+      break
+    end
+
+    self:writeLine(level, stackInfo, ("   %3d. "):format(stackLevel) ..
+                                     tostring(info.what) .. " " ..
+                                     tostring(info.namewhat) .. " " ..
+                                     tostring(info.source) .. ":" ..
+                                     tostring(info.linedefined) .. ".." ..
+                                     tostring(info.lastlinedefined) .. "::" ..
+                                     tostring(info.name) .. "(" ..
+                                     tonumber(info.nparams) ..
+                                     (info.isvararg and
+                                              ", ..." or
+                                              "") .. "):" ..
+                                     tostring(info.currentline))
+    stackLevel = stackLevel + 1
+  end
+end
+
 
 local FileLogger = newClass(Logger, {name="FileLogger"})
 
