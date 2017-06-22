@@ -26,7 +26,10 @@ function Sprite:__new__(x, y)
   self.ownVelocity = vector(0, 0)
 end
 
-function Sprite:handleCollision()
+function Sprite:handleCollision(window, collision)
+end
+
+function Sprite:handleSpriteCollision(window, other)
 end
 
 function Sprite:update()

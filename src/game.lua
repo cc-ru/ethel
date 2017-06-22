@@ -168,8 +168,7 @@ function Game:update()
   self.window.text[4][2] = comp.totalMemory() - comp.freeMemory()
   self.window.text[4][4] = comp.freeMemory()
   self.window.text[4][6] = comp.totalMemory()
-  self.window.text[4][8][3] = (comp.totalMemory() -
-                               comp.freeMemory()) / comp.totalMemory()
+  self.window.text[4][8][3] = 1 - comp.freeMemory() / comp.totalMemory()
   self.window.text[5][2] = self.window.player.x
   self.window.text[6][2] = self.window.player.y
   self.window.text[7][2] = self.window.player.velocity

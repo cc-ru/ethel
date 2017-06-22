@@ -3,14 +3,31 @@ local vector = require("vector")
 local GRAVITY = vector(0, -0.1)
 local MAXSPEED = 3
 
+local function checkRectCollision(a, b)
+  return a.x < b.x + b.w and
+         a.x + a.w > b.x and
+         a.y < b.y + b.h and
+         a.y + a.h > b.y
+end
+
+local function isTileCollisionable(window, x, y)
+  if not window.tilemap:inBounds(x, y) then
+    return true
+  end
+  local tile = window.tilemap:get(x, y)
+  if not tile then
+    return false
+  end
+  if tile.passable then
+    return false
+  end
+  return true
+end
+
 local function isSpriteInMidair(window, sprite)
   for x = sprite.x, sprite.x + sprite.w - 1, 1 do
     local tx, ty = window.tilemap:fromAbsCoords(x, sprite.y - 1)
-    if not window.tilemap:inBounds(tx, ty) then
-      return false
-    end
-    local tile = window.tilemap:get(tx, ty)
-    if tile then
+    if isTileCollisionable(window, tx, ty) then
       return false
     end
   end
@@ -36,8 +53,7 @@ local function checkCollision(window, sprite)
   for x = math.floor(sprite.x), math.floor(sprite.x) + sprite.w - 1, 1 do
     for y = math.floor(sprite.y), math.floor(sprite.y) + sprite.h - 1, 1 do
       local tx, ty = window.tilemap:fromAbsCoords(x, y)
-      local tile = window.tilemap:get(tx, ty)
-      if tile or not window.tilemap:inBounds(tx, ty) then
+      if isTileCollisionable(window, tx, ty) then
         return true
       end
     end
@@ -54,8 +70,7 @@ local function resolveNearTileCollision(window, sprite, v)
     end
     for j = sprite.y, sprite.y + sprite.h - 1, 1 do
       local tx, ty = window.tilemap:fromAbsCoords(i, j)
-      if window.tilemap:get(tx, ty) or
-          not window.tilemap:inBounds(tx, ty) then
+      if isTileCollisionable(window, tx, ty) then
         v[1] = 0
         collision[1] = true
       end
@@ -68,8 +83,7 @@ local function resolveNearTileCollision(window, sprite, v)
     end
     for i = sprite.x, sprite.x + sprite.w - 1, 1 do
       local tx, ty = window.tilemap:fromAbsCoords(i, j)
-      if window.tilemap:get(tx, ty) or
-          not window.tilemap:inBounds(tx, ty) then
+      if isTileCollisionable(window, tx, ty) then
         v[2] = 0
         collision[2] = true
       end
@@ -89,8 +103,7 @@ local function resolveNearTileCollision(window, sprite, v)
       y = y + sprite.h
     end
     local tx, ty = window.tilemap:fromAbsCoords(x, y)
-    if window.tilemap:get(tx, ty) or
-        not window.tilemap:inBounds(tx, ty) then
+    if isTileCollisionable(window, tx, ty) then
       v[1] = 0
       collision[1] = true
     end
@@ -131,12 +144,29 @@ local function updateSprite(window, sprite)
   end
 end
 
+local function checkSpriteCollision(window)
+  local sprites = {window.player}
+  for k, v in pairs(window.sprites) do
+    sprites[#sprites + 1] = v
+  end
+  for i = 1, #sprites - 1, 1 do
+    for j = i + 1, #sprites, 1 do
+      local a, b = sprites[i], sprites[j]
+      if checkRectCollision(a, b) then
+        a:handleSpriteCollision(window, b)
+        b:handleSpriteCollision(window, a)
+      end
+    end
+  end
+end
+
 local function progress(window, t)
   for i = 1, t, 1 do
     for _, sprite in pairs(window.sprites) do
       updateSprite(window, sprite)
     end
     updateSprite(window, window.player)
+    checkEnemyCollision(window)
   end
 end
 
