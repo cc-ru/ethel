@@ -34,8 +34,9 @@ evt.engine:subscribe("quit", 0, function(hdr, e)
 end)
 
 evt.engine:subscribe("command.set-level", 0, function(hdr, e)
-  curState:destroy()
-  curState = game.Game(e.level)
+  if curState:isa(game.Game) then
+    curState:setLevel(e.level)
+  end
 end)
 
 while running do

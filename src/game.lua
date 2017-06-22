@@ -93,16 +93,8 @@ Game.time = comp.uptime()
 
 function Game:__new__(level)
   self.window = window.newWindow(W, H)
-  self.window.tilemap = level.tilemap:clone()
-  self.window.background = level.background
-  self.window.player = level.player.class(level.player.x,
-                                          level.player.y)
-  self.window.sprites = {}
-  for k, v in pairs(level.sprites) do
-    table.insert(self.window.sprites, v.class(v.x, v.y))
-  end
-
-  self.level = level
+  self.lives = 3
+  self:setLevel(level)
 
   self._subOnKeyDown = evt.engine:subscribe("key-down", 0, function(hdr, e)
     local key = e[3]
@@ -144,6 +136,19 @@ function Game:__destroy__()
   self._subOnKeyUp:destroy()
 end
 
+function Game:setLevel(level)
+  self.window.tilemap = level.tilemap:clone()
+  self.window.background = level.background
+  self.window.player = level.player.class(level.player.x,
+                                          level.player.y)
+  self.window.sprites = {}
+  for k, v in pairs(level.sprites) do
+    table.insert(self.window.sprites, v.class(v.x, v.y))
+  end
+
+  self.level = level
+end
+
 function Game:update()
   local dt = comp.uptime() - self.time
   self.time = comp.uptime()
@@ -155,7 +160,7 @@ function Game:update()
   physics.progress(self.window, 1)
   self.window:calculateOffsets()
 
-  self.window.text[1][2] = 3
+  self.window.text[1][2] = self.lives
   self.window.text[2][2] = self.level.world
   self.window.text[2][4] = self.level.level
   self.window.text[3][2][3] = 1 / dt
