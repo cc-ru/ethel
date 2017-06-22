@@ -43,6 +43,12 @@ Player.isEnemy = false
 Player.sprite = "player"
 Player.render = tile.renderFromResource(getResource("sprite.player"))
 
+function Player:handleCollision(window, collision)
+  if collision[2] and self.ownVelocity[2] > 0 then
+    self.ownVelocity[2] = 0
+  end
+end
+
 
 local Chort = newClass(Sprite, {name="Chort"})
 Chort.w = 3
