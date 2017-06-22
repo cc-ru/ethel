@@ -106,7 +106,7 @@ function Game:__new__(level)
     end
     if key == kbd.keys.up and
         not physics.isSpriteInMidair(self.window, self.window.player) then
-      self.window.player.ownVelocity[2] = 1.5
+      self.window.player.ownVelocity[2] = 2.75
     end
     if key == kbd.keys.down then
       evt.engine:push(

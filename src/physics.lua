@@ -1,6 +1,6 @@
 local vector = require("vector")
 
-local GRAVITY = vector(0, -0.1)
+local GRAVITY = vector(0, -0.3)
 local MAXSPEED = 3
 
 local function checkRectCollision(a, b)
@@ -166,7 +166,7 @@ local function progress(window, t)
       updateSprite(window, sprite)
     end
     updateSprite(window, window.player)
-    checkEnemyCollision(window)
+    checkSpriteCollision(window)
   end
 end
 
