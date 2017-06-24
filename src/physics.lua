@@ -114,10 +114,15 @@ end
 local function updateSprite(window, sprite)
   local v = sprite.velocity + sprite.ownVelocity
   capSpeed(v, MAXSPEED)
-  local collision = resolveNearTileCollision(window, sprite, v)
+  local collision
+  if not sprite.isDead then
+    collision = resolveNearTileCollision(window, sprite, v)
+  else
+    collision = {false, false}
+  end
   sprite.x = sprite.x + v[1]
   sprite.y = sprite.y + v[2]
-  if checkCollision(window, sprite) then
+  if not sprite.isDead and checkCollision(window, sprite) then
     sprite.x = sprite.x - v[1]
     sprite.y = sprite.y - v[2]
     if #v > 0 then
@@ -133,7 +138,7 @@ local function updateSprite(window, sprite)
     collision[1] = collision[1] or collisionSide[1]
     collision[2] = collision[2] or collisionSide[2]
   end
-  if isSpriteInMidair(window, sprite) then
+  if isSpriteInMidair(window, sprite) or sprite.isDead then
     sprite.velocity = sprite.velocity + GRAVITY
   else
     sprite.velocity[2] = 0
@@ -147,7 +152,9 @@ end
 local function checkSpriteCollision(window)
   local sprites = {window.player}
   for k, v in pairs(window.sprites) do
-    sprites[#sprites + 1] = v
+    if not v.isDead then
+      sprites[#sprites + 1] = v
+    end
   end
   for i = 1, #sprites - 1, 1 do
     for j = i + 1, #sprites, 1 do
@@ -171,6 +178,7 @@ local function progress(window, t)
 end
 
 return {
+  checkRectCollision = checkRectCollision,
   isSpriteInMidair = isSpriteInMidair,
   progress = progress
 }

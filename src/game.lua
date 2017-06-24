@@ -159,6 +159,7 @@ function Game:update()
   self.window.player:update(self.window, self.window.tilemap)
   physics.progress(self.window, 1)
   self.window:calculateOffsets()
+  self.window:clearDeadSprites()
 
   self.window.text[1][2] = self.lives
   self.window.text[2][2] = self.level.world

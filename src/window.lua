@@ -1,5 +1,8 @@
 local buf = require("doubleBuffering")
 
+local module = require("ethel.module")
+local physics = module.load("physics")
+
 local FORMATMETA = {}
 local function format(p)
   return setmetatable(p, FORMATMETA)
@@ -40,6 +43,23 @@ local newWindow do
       self.scrollUp = 0
     elseif y >= totalHeight - halfH then
       self.scrollUp = totalHeight - self.h
+    end
+  end
+
+  function meta:clearDeadSprites()
+    local bounds = {x = 1,
+                    y = 1,
+                    w = self.w,
+                    h = self.h}
+    for i = #self.sprites, 1, -1 do
+      local v = self.sprites[i]
+      if v.isDead then
+        if not physics.checkRectCollision(v, bounds) then
+          -- out of level! safe to destroy
+          v:destroy()
+          table.remove(self.sprites, i)
+        end
+      end
     end
   end
 

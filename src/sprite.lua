@@ -12,11 +12,11 @@ Sprite.x = 0
 Sprite.y = 0
 Sprite.w = 0
 Sprite.h = 0
-Sprite.isEnemy = false
 Sprite.render = function() end
 Sprite.velocity = vector(0, 0)
 Sprite.ownVelocity = vector(0, 0)
 Sprite.sprite = ""
+Sprite.isDead = false
 
 function Sprite:__new__(x, y)
   self.x = x
@@ -36,10 +36,12 @@ function Sprite:update()
 end
 
 
+local Enemy = newClass(Sprite, {name="Enemy"})
+
+
 local Player = newClass(Sprite, {name="Player"})
 Player.w = 2
 Player.h = 5
-Player.isEnemy = false
 Player.sprite = "player"
 Player.render = tile.renderFromResource(getResource("sprite.player"))
 
@@ -50,10 +52,9 @@ function Player:handleCollision(window, collision)
 end
 
 
-local Chort = newClass(Sprite, {name="Chort"})
+local Chort = newClass(Enemy, {name="Chort"})
 Chort.w = 3
 Chort.h = 3
-Chort.isEnemy = true
 Chort.render = tile.renderFromResource(getResource("sprite.chort"))
 Chort.direction = -1
 Chort.sprite = "chort"
@@ -65,6 +66,18 @@ end
 function Chort:handleCollision(window, collision)
   if collision[1] then
     self.direction = -self.direction
+  end
+end
+
+function Chort:handleSpriteCollision(window, other)
+  if other:isa(Player) then
+    if other.y > self.y + self.h - 1 then
+      -- RIP.
+      self.isDead = true
+    else
+      -- RIP, too. But now for player.
+      other.isDead = true
+    end
   end
 end
 
