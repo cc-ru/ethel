@@ -1,7 +1,10 @@
 local vector = require("vector")
 
-local GRAVITY = vector(0, -0.3)
-local MAXSPEED = 3
+local module = require("ethel.module")
+local log = module.load("util.logger")
+
+local GRAVITY = vector(0, -0.2)
+local MAXSPEED = 10
 
 local function checkRectCollision(a, b)
   return a.x < b.x + b.w and
@@ -112,45 +115,70 @@ local function resolveNearTileCollision(window, sprite, v)
 end
 
 local function updateSprite(window, sprite)
-  local v = sprite.velocity + sprite.ownVelocity
-  capSpeed(v, MAXSPEED)
-  local collision
-  if not sprite.isDead then
-    collision = resolveNearTileCollision(window, sprite, v)
-  else
-    collision = {false, false}
-  end
-  sprite.x = sprite.x + v[1]
-  sprite.y = sprite.y + v[2]
-  if not sprite.isDead and checkCollision(window, sprite) then
-    sprite.x = sprite.x - v[1]
-    sprite.y = sprite.y - v[2]
-    if #v > 0 then
-      local cv = v:normalize()
-      while not checkCollision(window, sprite) do
-        sprite.x = sprite.x + cv[1]
-        sprite.y = sprite.y + cv[2]
-      end
-      sprite.x = sprite.x - cv[1]
-      sprite.y = sprite.y - cv[2]
+  local vsum = sprite.velocity + sprite.ownVelocity
+  capSpeed(vsum, MAXSPEED)
+  local normalized = vsum:normalize()
+  local magnitude = #vsum
+  for i = 1, math.ceil(magnitude), window.tilemap.gridSize do
+    i = math.min(i, magnitude)
+    local v = normalized * i
+    local collision
+    if not sprite.isDead then
+      collision = resolveNearTileCollision(window, sprite, v)
+    else
+      collision = {false, false}
     end
-    local collisionSide = resolveNearTileCollision(window, sprite, v)
-    collision[1] = collision[1] or collisionSide[1]
-    collision[2] = collision[2] or collisionSide[2]
-  end
-  if isSpriteInMidair(window, sprite) or sprite.isDead then
-    sprite.velocity = sprite.velocity + GRAVITY
-  else
-    sprite.velocity[2] = 0
-    sprite.y = math.floor(sprite.y)
-  end
-  if collision[1] or collision[2] then
-    sprite:handleCollision(window, collision)
+    sprite.x = sprite.x + v[1]
+    sprite.y = sprite.y + v[2]
+    if not sprite.isDead and checkCollision(window, sprite) then
+      sprite.x = sprite.x - v[1]
+      sprite.y = sprite.y - v[2]
+      if #v > 0 then
+        local cv = v:normalize()
+        while not checkCollision(window, sprite) do
+          sprite.x = sprite.x + cv[1]
+          sprite.y = sprite.y + cv[2]
+        end
+        sprite.x = sprite.x - cv[1]
+        sprite.y = sprite.y - cv[2]
+      end
+      local collisionSide = resolveNearTileCollision(window, sprite, v)
+      collision[1] = collision[1] or collisionSide[1]
+      collision[2] = collision[2] or collisionSide[2]
+    end
+    if isSpriteInMidair(window, sprite) or sprite.isDead then
+      sprite.velocity = sprite.velocity + GRAVITY
+    else
+      sprite.velocity[2] = 0
+      sprite.y = math.floor(sprite.y)
+    end
+    if collision[1] or collision[2] then
+      sprite:handleCollision(window, collision)
+    end
   end
 end
 
+local function checkSpriteNear(a, b)
+  local ax, ay, aw, ah = math.floor(a.x), math.floor(a.y), a.w, a.h
+  local bx, by, bw, bh = math.floor(b.x), math.floor(b.y), b.w, b.h
+  local collision = {false, false}
+  if ax + aw == bx and ay + ah - 1 >= by - 1 and ay <= by + bh then
+    collision[1] = 1
+  elseif ax == bx + bw and ay + ah - 1 >= by - 1 and ay <= by + bh then
+    collision[1] = -1
+  elseif ay + ah == by and ax + aw - 1 >= bx - 1 and ax <= bx + bw then
+    collision[2] = 1
+  elseif ay == by + bh and ax + aw - 1 >= bx - 1 and ax <= bx + bw then
+    collision[2] = -1
+  end
+  return collision
+end
+
 local function checkSpriteCollision(window)
-  local sprites = {window.player}
+  local sprites = {}
+  if not window.player.isDead then
+    sprites[1] = window.player
+  end
   for k, v in pairs(window.sprites) do
     if not v.isDead then
       sprites[#sprites + 1] = v
@@ -159,9 +187,18 @@ local function checkSpriteCollision(window)
   for i = 1, #sprites - 1, 1 do
     for j = i + 1, #sprites, 1 do
       local a, b = sprites[i], sprites[j]
-      if checkRectCollision(a, b) then
-        a:handleSpriteCollision(window, b)
-        b:handleSpriteCollision(window, a)
+      local collision = checkRectCollision(a, b)
+      if collision then
+        collision = {0, 0}
+      else
+        collision = checkSpriteNear(a, b)
+      end
+      log.logger:debug("collision", a, b, collision[1], collision[2])
+      if collision[1] or collision[2] then
+        a:handleSpriteCollision(window, b, collision)
+        b:handleSpriteCollision(window, a,
+                                {collision[1] and -collision[1] or false,
+                                 collision[2] and -collision[2] or false})
       end
     end
   end

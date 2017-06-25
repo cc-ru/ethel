@@ -29,7 +29,7 @@ end
 function Sprite:handleCollision(window, collision)
 end
 
-function Sprite:handleSpriteCollision(window, other)
+function Sprite:handleSpriteCollision(window, other, collision)
 end
 
 function Sprite:update()
@@ -69,13 +69,14 @@ function Chort:handleCollision(window, collision)
   end
 end
 
-function Chort:handleSpriteCollision(window, other)
+function Chort:handleSpriteCollision(window, other, collision)
   if other:isa(Player) then
-    if other.y > self.y + self.h - 1 then
+    if collision[2] and collision[2] >= 0 then
       -- RIP.
       self.isDead = true
+      other.velocity[2] = 0.5
     else
-      -- RIP, too. But now for player.
+      -- RIP, too.
       other.isDead = true
     end
   end

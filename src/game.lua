@@ -106,7 +106,7 @@ function Game:__new__(level)
     end
     if key == kbd.keys.up and
         not physics.isSpriteInMidair(self.window, self.window.player) then
-      self.window.player.ownVelocity[2] = 2.75
+      self.window.player.ownVelocity[2] = 2.5
     end
     if key == kbd.keys.down then
       evt.engine:push(
@@ -152,6 +152,13 @@ end
 function Game:update()
   local dt = comp.uptime() - self.time
   self.time = comp.uptime()
+
+  if self.window.player.y + self.window.h < 0 then
+    -- restart
+    self:setLevel(self.level)
+    self.lives = self.lives - 1
+  end
+
   for k, v in pairs(self.window.sprites) do
     v:update(self.window, self.window.tilemap)
   end
@@ -177,10 +184,6 @@ function Game:update()
   self.window.text[9][2] = #self.window.sprites
   self.window.text[10][2] = self.window.scrollRight
   self.window.text[11][2] = self.window.scrollUp
-  self.window.text[12][3][3] = self.window.sprites[1].x
-  self.window.text[12][5][3] = self.window.sprites[1].y
-  self.window.text[13][2] = self.window.sprites[1].velocity
-  self.window.text[14][2] = self.window.sprites[1].ownVelocity
 
   self.window:render()
 

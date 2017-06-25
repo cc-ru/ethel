@@ -143,13 +143,6 @@ local newWindow do
         {"sr: ", 0,
          debug=true},
         {"su: ", 0,
-         debug=true},
-        {"Sprite: ", "x=", format {"format", "%.4f", 0},
-         ", y=", format {"format", "%.4f", 0},
-         debug=true},
-        {"sv: ", nil,
-         debug=true},
-        {"sov: ", nil,
          debug=true}
       }
     }
