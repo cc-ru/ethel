@@ -2,10 +2,22 @@ local objects = require("lua-objects.lua_objects")
 local vector = require("vector")
 
 local module = require("ethel.module")
-local tile = module.load("tile")
 
 local getResource = module.load("resource").getResource
 local newClass = objects.newClass
+
+
+local RenderAliveDeadStatic = newClass(nil, {name="RenderAliveDeadStatic"})
+
+function RenderAliveDeadStatic:render(window, tilemap, gx, gy)
+  if not self.isDead then
+    self.texture.texture[1]:draw(gx, gy)
+  else
+    local i = math.min(2, #self.texture.texture)
+    self.texture.texture[i]:draw(gx, gy)
+  end
+end
+
 
 local Sprite = newClass(nil, {name="Sprite"})
 Sprite.x = 0
@@ -39,11 +51,11 @@ end
 local Enemy = newClass(Sprite, {name="Enemy"})
 
 
-local Player = newClass(Sprite, {name="Player"})
+local Player = newClass({Sprite, RenderAliveDeadStatic}, {name="Player"})
 Player.w = 2
 Player.h = 5
 Player.sprite = "player"
-Player.render = tile.renderFromResource(getResource("sprite.player"))
+Player.texture = getResource("sprite.player")
 
 function Player:handleCollision(window, collision)
   if collision[2] and self.ownVelocity[2] > 0 then
@@ -52,12 +64,12 @@ function Player:handleCollision(window, collision)
 end
 
 
-local Chort = newClass(Enemy, {name="Chort"})
+local Chort = newClass({Enemy, RenderAliveDeadStatic}, {name="Chort"})
 Chort.w = 3
 Chort.h = 3
-Chort.render = tile.renderFromResource(getResource("sprite.chort"))
 Chort.direction = -1
 Chort.sprite = "chort"
+Chort.texture = getResource("sprite.chort")
 
 function Chort:update(window, tilemap)
   self.ownVelocity[1] = 0.2 * self.direction
