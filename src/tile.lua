@@ -8,23 +8,23 @@ local getResource = module.load("resource").getResource
 local newClass = objects.newClass
 
 
-local function renderFromResource(resource)
-  return function(self, window, tilemap, gx, gy)
-    local x, y = window:toAbsCoords(gx, gy)
-    if resource.texture.type == "static" then
-      resource.texture:draw(gx, gy)
-    elseif resource.texture.type == "connected" then
-      local tx, ty = tilemap:fromAbsCoords(x, y)
-      local left = tilemap:get(tx - 1, ty)
-      local right = tilemap:get(tx + 1, ty)
-      local top = tilemap:get(tx, ty + 1)
-      local bottom = tilemap:get(tx, ty - 1)
-      left   = left   and   left.type == self.type
-      right  = right  and  right.type == self.type
-      top    = top    and    top.type == self.type
-      bottom = bottom and bottom.type == self.type
-      resource.texture:get(left, right, top, bottom):draw(gx, gy)
-    end
+local RenderFromResource = newClass(nil, {name="RenderFromResource"})
+
+function RenderFromResource:render(self, window, tilemap, gx, gy)
+  local x, y = window:toAbsCoords(gx, gy)
+  if self.resource.texture.type == "static" then
+    self.resource.texture:draw(gx, gy)
+  elseif self.resource.texture.type == "connected" then
+    local tx, ty = tilemap:fromAbsCoords(x, y)
+    local left = tilemap:get(tx - 1, ty)
+    local right = tilemap:get(tx + 1, ty)
+    local top = tilemap:get(tx, ty + 1)
+    local bottom = tilemap:get(tx, ty - 1)
+    left   = left   and   left.type == self.type
+    right  = right  and  right.type == self.type
+    top    = top    and    top.type == self.type
+    bottom = bottom and bottom.type == self.type
+    self.resource.texture:get(left, right, top, bottom):draw(gx, gy)
   end
 end
 
@@ -53,13 +53,14 @@ function DynamicTile:create(x, y)
 end
 
 
-local Stone = newClass(StaticTile, {name="Stone"})
-Stone.render = renderFromResource(getResource("tile.stone"))
+local Stone = newClass({StaticTile, RenderFromResource}, {name="Stone"})
+Stone.resource = getResource("tile.stone")
 
 
-local Teleporter = newClass(DynamicTile, {name="Teleporter"})
+local Teleporter = newClass({DynamicTile, RenderFromResource},
+                            {name="Teleporter"})
 Teleporter.target = getResource("level.debug")
-Teleporter.render = renderFromResource(getResource("tile.teleporter"))
+Teleporter.resource = getResource("tile.teleporter")
 
 function Teleporter:__new__(x, y)
   self.x = x
